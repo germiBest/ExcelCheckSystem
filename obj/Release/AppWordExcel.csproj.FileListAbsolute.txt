@@ -1,0 +1,13 @@
+X:\Курсач\AppWordExcel\AppWordExcel\bin\Release\AppWordExcel.exe.config
+X:\Курсач\AppWordExcel\AppWordExcel\bin\Release\AppWordExcel.exe
+X:\Курсач\AppWordExcel\AppWordExcel\bin\Release\AppWordExcel.pdb
+X:\Курсач\AppWordExcel\AppWordExcel\obj\Release\AppWordExcel.csprojAssemblyReference.cache
+X:\Курсач\AppWordExcel\AppWordExcel\obj\Release\AppWordExcel.csproj.ResolveComReference.cache
+X:\Курсач\AppWordExcel\AppWordExcel\obj\Release\AppWordExcel.Checker.resources
+X:\Курсач\AppWordExcel\AppWordExcel\obj\Release\AppWordExcel.Main.resources
+X:\Курсач\AppWordExcel\AppWordExcel\obj\Release\AppWordExcel.Properties.Resources.resources
+X:\Курсач\AppWordExcel\AppWordExcel\obj\Release\AppWordExcel.Result.resources
+X:\Курсач\AppWordExcel\AppWordExcel\obj\Release\AppWordExcel.csproj.GenerateResource.cache
+X:\Курсач\AppWordExcel\AppWordExcel\obj\Release\AppWordExcel.csproj.CoreCompileInputs.cache
+X:\Курсач\AppWordExcel\AppWordExcel\obj\Release\AppWordExcel.exe
+X:\Курсач\AppWordExcel\AppWordExcel\obj\Release\AppWordExcel.pdb
