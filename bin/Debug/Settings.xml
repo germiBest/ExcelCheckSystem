@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<setting>
+  <settings SheetName="Лист1">
+    <firstCell>A1</firstCell>
+    <secondCell>AA11</secondCell>
+    <Bold>0</Bold>
+    <Italic>0</Italic>
+  </settings>
+</setting>

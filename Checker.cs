@@ -8,6 +8,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml;
+using System.Xml.Linq;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Threading;
 namespace AppWordExcel
@@ -16,6 +18,92 @@ namespace AppWordExcel
     {
         private Excel.Range excelcells;
         private Excel.Range excelcells2;
+        class Settings
+        {
+            public string SheetName { get; set; }
+            public string FirstCell { get; set; }
+            public string SecondCell { get; set; }
+            public bool Bold { get; set; }
+            public bool Italic { get; set; }
+        };
+
+
+        public void XmlParse()
+        {
+            OpenFileDialog opf = new OpenFileDialog();
+            opf.Filter = "XML Files (*.xml*)|*.xml*";
+            if (opf.ShowDialog() != DialogResult.OK)
+            {
+                MessageBox.Show("Вы не выбрали файл настроек!", "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            filename = opf.FileName;
+            XmlDocument xDoc = new XmlDocument();
+            try
+            {
+                xDoc.Load("Settings.xml");
+            }
+            catch(Exception e)
+            {
+                MessageBox.Show("Файл не найден или не соответствует формату", "Внимание!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            try
+            {
+                XmlElement xRoot = xDoc.DocumentElement;
+                foreach (XmlNode xnode in xRoot)
+                {
+                    Settings SheetName = new Settings();
+
+                    if (xnode.Attributes.Count > 0)
+                    {
+                        XmlNode attr = xnode.Attributes.GetNamedItem("SheetName");
+                        WorkSheet.Text = attr.Value;
+                    }
+                    foreach (XmlNode childnode in xnode.ChildNodes)
+                    {
+                        if (childnode.Name == "firstCell")
+                        {
+                            FirstCellBox.Text = childnode.InnerText;
+                        }
+                        if (childnode.Name == "secondCell")
+                        {
+                            LastCellBox.Text = childnode.InnerText;
+                        }
+                        if (childnode.Name == "Bold")
+                        {
+                            if (childnode.InnerText == "1")
+                            {
+                                Bold.Checked = true;
+                            }
+                            else
+                            {
+                                Bold.Checked = false;
+                            }
+                        }
+                        if (childnode.Name == "Italic")
+                        {
+                            if (childnode.InnerText == "1")
+                            {
+                                checkBoxItalic.Checked = true;
+
+                            }
+                            else
+                            {
+                                checkBoxItalic.Checked = false;
+                            }
+                        }
+                    }
+                }
+                MainTextBox.Text += "Налаштунки вдало імпортовано!" + "\r\n";
+            }
+            catch ( Exception e)
+            {
+                MessageBox.Show("Помилка імпорту!", "Увага!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MainTextBox.Text += "Помилка імпорту налаштунків!" + "\r\n";
+            }
+        }
+
+
         public Checker()
         {
             InitializeComponent();
@@ -63,7 +151,7 @@ namespace AppWordExcel
                 return;
             }
             filename = opf.FileName;
-            label1.Text = "Path to the first book:\n" + filename;
+            MainTextBox.Text += "Path to the first book: " + filename + "\r\n";
         }
         void SecondFile_Click(object sender, EventArgs e)
         {
@@ -75,7 +163,7 @@ namespace AppWordExcel
                 return;
             }
             filename2 = opf2.FileName;
-            label2.Text = "Path to the second book:\n" + filename2;
+            MainTextBox.Text += "Path to the second book: " + filename2 + "\r\n";
         }
         private void button3_Click(object sender, EventArgs e)
         {
@@ -95,8 +183,8 @@ namespace AppWordExcel
                 xlSht = xlApp.Worksheets[WorkSheet.Text];
                 xlSht2 = xlApp2.Worksheets[WorkSheet.Text];
 
-                int arrData3 = xlSht.Range[textBox1.Text + ":" + textBox2.Text].Columns.Count;
-                int arrData4 = xlSht.Range[textBox1.Text + ":" + textBox2.Text].Rows.Count;
+                int arrData3 = xlSht.Range[FirstCellBox.Text + ":" + LastCellBox.Text].Columns.Count;
+                int arrData4 = xlSht.Range[FirstCellBox.Text + ":" + LastCellBox.Text].Rows.Count;
 
                 excelcells2 = xlSht2.get_Range("A1", Type.Missing);
                 excelcells = xlSht.get_Range("A1", Type.Missing);
@@ -107,24 +195,23 @@ namespace AppWordExcel
                 string Result = "";
                 string bold = "";
                 StreamWriter writer = new StreamWriter(PathToSave + "report.txt");
+                MainTextBox.Text += "_______________________________________________________________________________\r\n";
+                MainTextBox.Text += "Start...\r\n";
                 for (iRow = 0; iRow < arrData4; iRow++)
                 {
                     for (iCol = 0; iCol < arrData3; iCol++)
                     {
                         excelcells = excelcells.get_Offset(iRow, iCol);
                         excelcells2 = excelcells2.get_Offset(iRow, iCol);
-                        if (checkBox1.Checked)
+                        if (Bold.Checked)
                         {
                             bool isCell1Bold = excelcells.Font.Bold;
                             bool isCell2Bold = excelcells2.Font.Bold;
                             if (isCell1Bold != isCell2Bold)
                             {
                                 writer.WriteLine("Несовпадение формата жирности в клеточке " + NumberToLetters(iCol + 1) + (iRow + 1) + "\n");
-
-                                if (checkBox3.Checked)
-                                {
-                                    bold = bold + "Несовпадение формата жирности в клеточке " + NumberToLetters(iCol + 1) + (iRow + 1) + "\r\n";
-                                }
+                                MainTextBox.Text += "Несовпадение формата жирности в клеточке " + NumberToLetters(iCol + 1) + (iRow + 1) + "\r\n";
+                                
                             }
 
                         }
@@ -135,21 +222,18 @@ namespace AppWordExcel
                             if (isCell1Italic != isCell2Italic)
                             {
                                 writer.WriteLine("Несовпадение формата курсива в клеточке " + NumberToLetters(iCol + 1) + (iRow + 1) + "\n");
-                                if (checkBox3.Checked)
-                                {
-                                    bold = bold + "Несовпадение формата курсива в клеточке " + NumberToLetters(iCol + 1) + (iRow + 1) + "\r\n";
-                                }
+                             
+                                    MainTextBox.Text += "Несовпадение формата курсива в клеточке " + NumberToLetters(iCol + 1) + (iRow + 1) + "\r\n";
+                                
                             }
 
                         }
                         if (!(excelcells.FormulaLocal == excelcells2.FormulaLocal))
                         {
                             writer.WriteLine("Несовпадение значения в клеточке " + NumberToLetters(iCol + 1) + (iRow + 1) + "\n");
-
-                            if (checkBox3.Checked)
-                            {
-                                Result = Result + "Несовпадение значения в клеточке " + NumberToLetters(iCol + 1) + (iRow + 1) + "\r\n";
-                            }
+                            
+                                MainTextBox.Text += "Несовпадение значения в клеточке " + NumberToLetters(iCol + 1) + (iRow + 1) + "\r\n";
+                            
 
                         }
 
@@ -161,16 +245,11 @@ namespace AppWordExcel
                     }
                 }
                 toolStripStatusLabel1.Text = "Готово!";
-                if (checkBox1.Checked)
+                if (Bold.Checked)
                 {
                     Result = Result + bold;
                 }
                 writer.Close();
-                if (checkBox3.Checked)
-                {
-                    Result f = new Result(Result);
-                    f.ShowDialog();
-                }
                 xlApp.Quit();
                 xlApp2.Quit();
                 System.Runtime.InteropServices.Marshal.ReleaseComObject(xlApp);
@@ -186,9 +265,11 @@ namespace AppWordExcel
                 xlSht2 = null;
 
                 System.GC.Collect();
+                MainTextBox.Text += "End.\r\n";
+                MainTextBox.Text += "_______________________________________________________________________________\r\n";
 
             }
-            catch(Exception Exc)
+            catch (Exception Exc)
             {
                 MessageBox.Show(Exc.Message);
             }
@@ -203,7 +284,7 @@ namespace AppWordExcel
             ChooseFolder();
         }
 
-        private void button5_Click(object sender, EventArgs e)
+       /* private void button5_Click(object sender, EventArgs e)
         {
             OpenFileDialog opf = new OpenFileDialog();
             opf.Filter = "Configurate file (.cfg)|*.cfg|Text file (.txt)|*.txt*";
@@ -245,20 +326,18 @@ namespace AppWordExcel
 
                 int index7 = s.IndexOf("[SheetName]=") + "[SheetName]=".Length;
                 WorkSheet.Text = (s.Substring(index7)).Substring(0, (s.Substring(index7)).Length - 1);
-                MessageBox.Show(s);
             }catch(Exception Exc)
             {
                 MessageBox.Show("Invalid config", "Error");
             }
-        }
-        private void button6_Click(object sender, EventArgs e)
+        }*/
+        /*private void button6_Click(object sender, EventArgs e)
         {
             try
             {
                 ChooseFolderForConfig();
                 string Folder = PathToSaveConfig + "\\config.cfg";
-                MessageBox.Show(Folder);
-                MessageBox.Show(PathToSaveConfig);
+                MessageBox.Show("Config saved to:\n" + PathToSaveConfig);
                 string text = "[firstCell]=" + textBox1.Text;
                 string sec = "[secondCell]=" + textBox2.Text;
                 string bold = "";
@@ -300,6 +379,62 @@ namespace AppWordExcel
             {
                 MessageBox.Show("Invalid config", "Error");
             }
+        }
+        */
+        private void button6_Click(object sender, EventArgs e)
+        {
+            XmlParse();
+        }
+        private void XmlCreate_Click(object sender, EventArgs e)
+        {
+            int isBOLD = 1;
+            int isITALIC = 1;
+            if (Bold.Checked)
+            {
+                isBOLD = 1;
+            }
+            else
+            {
+                isBOLD = 0;
+            }
+            if (checkBoxItalic.Checked)
+            {
+                isITALIC = 1;
+            }
+            else
+            {
+                isITALIC = 0;
+            }
+            XDocument xdoc = new XDocument();
+            // создаем первый элемент
+            XElement settings = new XElement("settings");
+            // создаем атрибут
+            XAttribute SheetName = new XAttribute("SheetName", WorkSheet.Text);
+            XElement firstCell = new XElement("firstCell", FirstCellBox.Text);
+            XElement secondCell = new XElement("secondCell", LastCellBox.Text);
+            XElement BOLD = new XElement("Bold", isBOLD);
+            XElement ITALIC = new XElement("Italic", isITALIC);
+            // добавляем атрибут и элементы в первый элемент
+            settings.Add(SheetName);
+            settings.Add(firstCell);
+            settings.Add(secondCell);
+            settings.Add(BOLD);
+            settings.Add(ITALIC);
+
+            
+            // создаем корневой элемент
+            XElement setting = new XElement("setting");
+            // добавляем в корневой элемент
+            setting.Add(settings);
+            // добавляем корневой элемент в документ
+            xdoc.Add(setting);
+            //сохраняем документ
+            xdoc.Save("Settings.xml");
+        }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+            MainTextBox.Text = "";
         }
     }
 }

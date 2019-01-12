@@ -35,5 +35,3 @@ X:\Курсач\AppWordExcel\AppWordExcel\obj\Debug\AppWordExcel.csproj.CoreComp
 X:\Курсач\AppWordExcel\AppWordExcel\obj\Debug\AppWordExcel.exe
 X:\Курсач\AppWordExcel\AppWordExcel\obj\Debug\AppWordExcel.pdb
 X:\Курсач\AppWordExcel\AppWordExcel\obj\Debug\AppWordExcel.csprojAssemblyReference.cache
-X:\Курсач\AppWordExcel\AppWordExcel\bin\Debug\AppWordExcel.exe.CodeAnalysisLog.xml
-X:\Курсач\AppWordExcel\AppWordExcel\bin\Debug\AppWordExcel.exe.lastcodeanalysissucceeded
